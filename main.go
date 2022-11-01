@@ -33,13 +33,13 @@ import (
 
 var proxyAddr = flag.String("proxy.bind", ":8443", "Proxy address for incoming connections")
 var proxyAPIAddr = flag.String("proxy.api-bind", ":8000", "HTTP proxy API address")
-var proxyUpstreamURL = flag.String(
-	"proxy.upstream-url",
+var proxyUpstreamURL1 = flag.String(
+	"proxy.upstream-url1",
 	"",
 	`Upstream HTTPS proxy where to forward traffic (e.g. "http://superproxy.com:8080")`,
 )
-var proxyUser = flag.String("proxy.user", "", "HTTP proxy auth user")
-var proxyPass = flag.String("proxy.pass", "", "HTTP proxy auth password")
+var proxyUser1 = flag.String("proxy.user1", "", "HTTP proxy auth user")
+var proxyPass1 = flag.String("proxy.pass1", "", "HTTP proxy auth password")
 var proxyCountry = flag.String("proxy.country", "", "HTTP proxy country targeting")
 var proxyMapPort = FlagArray(
 	"proxy.port-map",
@@ -48,12 +48,12 @@ var proxyMapPort = FlagArray(
 
 var stickyStoragePath = flag.String("stickiness-db-path", proxy.MemoryStorage, "Path to the database for stickiness mapping")
 
-var filterHostnames = FlagArray(
-	"filter.hostnames",
+var filterHostnames1 = FlagArray(
+	"filter.hostnames1",
 	`Explicitly forward just several hostnames (separated by comma - "ipinfo.io,ipify.org")`,
 )
-var filterZones = FlagArray(
-	"filter.zones",
+var filterZones1 = FlagArray(
+	"filter.zones1",
 	`Explicitly forward just several DNS zones. A zone of "example.com" matches "example.com" and all of its subdomains. (separated by comma - "ipinfo.io,ipify.org")`,
 )
 var excludeHostnames = FlagArray(
@@ -65,6 +65,46 @@ var excludeZones = FlagArray(
 	`Exclude from forwarding several DNS zones. A zone of "example.com" matches "example.com" and all of its subdomains. (separated by comma - "ipinfo.io,ipify.org")`,
 )
 
+////////////////////
+
+var proxyUpstreamURL2 = flag.String(
+	"proxy.upstream-url2",
+	"",
+	`Upstream HTTPS proxy where to forward traffic (e.g. "http://superproxy.com:8080")`,
+)
+var proxyUser2 = flag.String("proxy.user2", "", "HTTP proxy auth user")
+var proxyPass2 = flag.String("proxy.pass2", "", "HTTP proxy auth password")
+
+var filterHostnames2 = FlagArray(
+	"filter.hostnames2",
+	`Explicitly forward just several hostnames (separated by comma - "ipinfo.io,ipify.org")`,
+)
+var filterZones2 = FlagArray(
+	"filter.zones2",
+	`Explicitly forward just several DNS zones. A zone of "example.com" matches "example.com" and all of its subdomains. (separated by comma - "ipinfo.io,ipify.org")`,
+)
+
+////////////////////
+
+var proxyUpstreamURL3 = flag.String(
+	"proxy.upstream-url3",
+	"",
+	`Upstream HTTPS proxy where to forward traffic (e.g. "http://superproxy.com:8080")`,
+)
+var proxyUser3 = flag.String("proxy.user3", "", "HTTP proxy auth user")
+var proxyPass3 = flag.String("proxy.pass3", "", "HTTP proxy auth password")
+
+var filterHostnames3 = FlagArray(
+	"filter.hostnames3",
+	`Explicitly forward just several hostnames (separated by comma - "ipinfo.io,ipify.org")`,
+)
+var filterZones3 = FlagArray(
+	"filter.zones3",
+	`Explicitly forward just several DNS zones. A zone of "example.com" matches "example.com" and all of its subdomains. (separated by comma - "ipinfo.io,ipify.org")`,
+)
+
+//////////////////////
+
 var enableDomainTracer = flag.Bool("enable-domain-tracer", false, "Enable tracing domain names from requests")
 
 type domainTracker interface {
@@ -75,10 +115,21 @@ type domainTracker interface {
 func main() {
 	flag.Parse()
 
-	dialerUpstreamURL, err := url.Parse(*proxyUpstreamURL)
+	dialerUpstreamURL1, err := url.Parse(*proxyUpstreamURL1)
 	if err != nil {
-		log.Fatalf("Invalid upstream URL: %s", *proxyUpstreamURL)
+		log.Fatalf("Invalid upstream URL: %s", *proxyUpstreamURL1)
 	}
+
+	dialerUpstreamURL2, err := url.Parse(*proxyUpstreamURL2)
+	if err != nil {
+		log.Fatalf("Invalid upstream URL: %s", *proxyUpstreamURL2)
+	}
+
+	dialerUpstreamURL3, err := url.Parse(*proxyUpstreamURL3)
+	if err != nil {
+		log.Fatalf("Invalid upstream URL: %s", *proxyUpstreamURL3)
+	}
+
 
 	sm, err := proxy.NewStickyMapper(*stickyStoragePath)
 	if err != nil {
@@ -93,42 +144,79 @@ func main() {
 	apiServer := api.NewServer(*proxyAPIAddr, sm, domainTracer)
 	go apiServer.ListenAndServe()
 
-	dialerUpstream := proxy.NewDialerHTTPConnect(proxy.DialerDirect, dialerUpstreamURL.Host, *proxyUser, *proxyPass, *proxyCountry)
+	dialerUpstream3 := proxy.NewDialerHTTPConnect(proxy.DialerDirect, dialerUpstreamURL3.Host, *proxyUser3, *proxyPass3, *proxyCountry)
+	dialerUpstream2 := proxy.NewDialerHTTPConnect(proxy.dialerUpstream3, dialerUpstreamURL2.Host, *proxyUser2, *proxyPass2, *proxyCountry)
+	dialerUpstream1 := proxy.NewDialerHTTPConnect(proxy.dialerUpstream2, dialerUpstreamURL1.Host, *proxyUser1, *proxyPass1, *proxyCountry)
 
-	var dialer netproxy.Dialer
-	if len(*filterHostnames) > 0 || len(*filterZones) > 0 {
-		dialerUpstreamFiltered := netproxy.NewPerHost(proxy.DialerDirect, dialerUpstream)
-		for _, host := range *filterHostnames {
-			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL)
-			dialerUpstreamFiltered.AddHost(host)
+	var dialer3 netproxy.Dialer
+	if len(*filterHostnames3) > 0 || len(*filterZones3) >0 {
+		dialerUpstreamFiltered3 := netproxy.NewPerHost(proxy.DialerDirect, dialerUpstream3)
+		for _, host := range *filterHostnames3 {
+			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL3)
+			dialerUpstreamFiltered3.AddHost(host)
 		}
-		for _, zone := range *filterZones {
-			log.Printf("Redirecting: *.%s -> %s", zone, dialerUpstreamURL)
-			dialerUpstreamFiltered.AddZone(zone)
+		for _, zone := range *filterZones3 {
+			log.Printf("Redirecting: *.%s -> %s", zone, dialerUpstreamURL3)
+			dialerUpstreamFiltered3.AddZone(zone)
 		}
-		dialer = dialerUpstreamFiltered
+		dialer3 = dialerUpstreamFiltered3
 	} else {
-		dialer = dialerUpstream
-		log.Printf("Redirecting: * -> %s", dialerUpstreamURL)
+		dialer3 = dialerUpstream3
+		log.Printf("Redirecting: * -> %s", dialerUpstreamURL3)
 	}
+
+	var dialer2 netproxy.Dialer
+	if len(*filterHostnames2) > 0 || len(*filterZones2) >0 {
+		dialerUpstreamFiltered2 := netproxy.NewPerHost(dialer3, dialerUpstream2)
+		for _, host := range *filterHostnames2 {
+			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL2)
+			dialerUpstreamFiltered2.AddHost(host)
+		}
+		for _, zone := range *filterZones2 {
+			log.Printf("Redirecting: *.%s -> %s", zone, dialerUpstreamURL2)
+			dialerUpstreamFiltered2.AddZone(zone)
+		}
+		dialer2 = dialerUpstreamFiltered2
+	} else {
+		dialer2 = dialerUpstream2
+		log.Printf("Redirecting: * -> %s", dialerUpstreamURL2)
+	}
+
+	var dialer1 netproxy.Dialer
+	if len(*filterHostnames1) > 0 || len(*filterZones1) >0 {
+		dialerUpstreamFiltered1 := netproxy.NewPerHost(dialer2, dialerUpstream1)
+		for _, host := range *filterHostnames1 {
+			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL1)
+			dialerUpstreamFiltered1.AddHost(host)
+		}
+		for _, zone := range *filterZones1 {
+			log.Printf("Redirecting: *.%s -> %s", zone, dialerUpstreamURL1)
+			dialerUpstreamFiltered1.AddZone(zone)
+		}
+		dialer1 = dialerUpstreamFiltered1
+	} else {
+		dialer1 = dialerUpstream1
+		log.Printf("Redirecting: * -> %s", dialerUpstreamURL1)
+	}	
+
 	if len(*excludeHostnames) > 0 || len(*excludeZones) > 0 {
-		dialerUpstreamExcluded := netproxy.NewPerHost(dialer, proxy.DialerDirect)
+		dialerUpstreamExcluded := netproxy.NewPerHost(dialer1, proxy.DialerDirect)
 		for _, host := range *excludeHostnames {
-			log.Printf("Excluding: %s -> %s", host, dialerUpstreamURL)
+			log.Printf("Excluding: %s -> %s", host, dialerUpstreamURL1)
 			dialerUpstreamExcluded.AddHost(host)
 		}
 		for _, zone := range *excludeZones {
-			log.Printf("Excluding: *.%s -> %s", zone, dialerUpstreamURL)
+			log.Printf("Excluding: *.%s -> %s", zone, dialerUpstreamURL1)
 			dialerUpstreamExcluded.AddZone(zone)
 		}
-		dialer = dialerUpstreamExcluded
+		dialer1 = dialerUpstreamExcluded
 	}
 
 	portMap, err := parsePortMap(*proxyMapPort, *proxyAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
-	proxyServer := proxy.NewServer(dialer, dialerUpstreamURL, sm, domainTracer, portMap)
+	proxyServer := proxy.NewServer(dialer1, dialerUpstreamURL1, sm, domainTracer, portMap)
 
 	var wg sync.WaitGroup
 	for p := range portMap {
