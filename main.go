@@ -25,8 +25,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mysteriumnetwork/openvpn-forwarder/api"
-	"github.com/mysteriumnetwork/openvpn-forwarder/proxy"
+	"github.com/glucz/openvpn-forwarder/api"
+	"github.com/glucz/openvpn-forwarder/proxy"
 	"github.com/pkg/errors"
 	netproxy "golang.org/x/net/proxy"
 )
@@ -130,7 +130,6 @@ func main() {
 		log.Fatalf("Invalid upstream URL: %s", *proxyUpstreamURL3)
 	}
 
-
 	sm, err := proxy.NewStickyMapper(*stickyStoragePath)
 	if err != nil {
 		log.Fatalf("Failed to create sticky mapper, %v", err)
@@ -149,7 +148,7 @@ func main() {
 	dialerUpstream1 := proxy.NewDialerHTTPConnect(proxy.dialerUpstream2, dialerUpstreamURL1.Host, *proxyUser1, *proxyPass1, *proxyCountry)
 
 	var dialer3 netproxy.Dialer
-	if len(*filterHostnames3) > 0 || len(*filterZones3) >0 {
+	if len(*filterHostnames3) > 0 || len(*filterZones3) > 0 {
 		dialerUpstreamFiltered3 := netproxy.NewPerHost(proxy.DialerDirect, dialerUpstream3)
 		for _, host := range *filterHostnames3 {
 			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL3)
@@ -166,7 +165,7 @@ func main() {
 	}
 
 	var dialer2 netproxy.Dialer
-	if len(*filterHostnames2) > 0 || len(*filterZones2) >0 {
+	if len(*filterHostnames2) > 0 || len(*filterZones2) > 0 {
 		dialerUpstreamFiltered2 := netproxy.NewPerHost(dialer3, dialerUpstream2)
 		for _, host := range *filterHostnames2 {
 			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL2)
@@ -183,7 +182,7 @@ func main() {
 	}
 
 	var dialer1 netproxy.Dialer
-	if len(*filterHostnames1) > 0 || len(*filterZones1) >0 {
+	if len(*filterHostnames1) > 0 || len(*filterZones1) > 0 {
 		dialerUpstreamFiltered1 := netproxy.NewPerHost(dialer2, dialerUpstream1)
 		for _, host := range *filterHostnames1 {
 			log.Printf("Redirecting: %s -> %s", host, dialerUpstreamURL1)
@@ -197,7 +196,7 @@ func main() {
 	} else {
 		dialer1 = dialerUpstream1
 		log.Printf("Redirecting: * -> %s", dialerUpstreamURL1)
-	}	
+	}
 
 	if len(*excludeHostnames) > 0 || len(*excludeZones) > 0 {
 		dialerUpstreamExcluded := netproxy.NewPerHost(dialer1, proxy.DialerDirect)
