@@ -144,8 +144,8 @@ func main() {
 	go apiServer.ListenAndServe()
 
 	dialerUpstream3 := proxy.NewDialerHTTPConnect(proxy.DialerDirect, dialerUpstreamURL3.Host, *proxyUser3, *proxyPass3, *proxyCountry)
-	dialerUpstream2 := proxy.NewDialerHTTPConnect(proxy.dialerUpstream3, dialerUpstreamURL2.Host, *proxyUser2, *proxyPass2, *proxyCountry)
-	dialerUpstream1 := proxy.NewDialerHTTPConnect(proxy.dialerUpstream2, dialerUpstreamURL1.Host, *proxyUser1, *proxyPass1, *proxyCountry)
+	dialerUpstream2 := proxy.NewDialerHTTPConnect(dialerUpstream3, dialerUpstreamURL2.Host, *proxyUser2, *proxyPass2, *proxyCountry)
+	dialerUpstream1 := proxy.NewDialerHTTPConnect(dialerUpstream2, dialerUpstreamURL1.Host, *proxyUser1, *proxyPass1, *proxyCountry)
 
 	var dialer3 netproxy.Dialer
 	if len(*filterHostnames3) > 0 || len(*filterZones3) > 0 {
