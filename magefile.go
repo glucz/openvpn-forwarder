@@ -40,11 +40,19 @@ func Build() error {
 func Run() error {
 	return sh.RunV(buildPath,
 		"--proxy.bind=:8443",
-		"--proxy.upstream-url=http://superproxy.com:8080",
-		"--proxy.user=",
-		"--proxy.pass=",
-		"--filter.zones=api.ipify.org",
+		"--proxy.upstream-url1=http://superproxy.com:8080",
+		"--proxy.user1=",
+		"--proxy.pass1=",
+		"--filter.zones1=api.ipify.org",
 		"--exclude.hostnames=ipify.org",
+		"--proxy.upstream-url2=http://superproxy.com:8080",
+		"--proxy.user2=",
+		"--proxy.pass2=",
+		"--filter.zones2=api.ipify.org",
+		"--proxy.upstream-url3=http://superproxy.com:8080",
+		"--proxy.user3=",
+		"--proxy.pass3=",
+		"--filter.zones3=api.ipify.org",
 	)
 }
 
