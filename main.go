@@ -25,8 +25,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mysteriumnetwork/openvpn-forwarder/api"
-	"github.com/mysteriumnetwork/openvpn-forwarder/proxy"
+	"github.com/glucz/openvpn-forwarder/api"
+	"github.com/glucz/openvpn-forwarder/proxy"
 	"github.com/pkg/errors"
 	netproxy "golang.org/x/net/proxy"
 )

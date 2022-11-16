@@ -76,7 +76,7 @@ func (c *Connection) ConnectTo(conn io.ReadWriter, address string, userID string
 	}
 
 	if userID != "" {
-		req.Header.Add("User-Id", userID)
+		req.Header.Add("X-LEXISTREAM-SESSIONID", userID)
 	}
 
 	if c.country != "" {
